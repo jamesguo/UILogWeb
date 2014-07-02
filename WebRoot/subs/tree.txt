@@ -1,0 +1,14 @@
+﻿[
+	{id: "dataBar", text: "单步测试"},
+		
+	{id: "a_baffleDataMng", text: "用例列表", pid: "dataBar" },
+	
+	{id: "a_baffleConfigMng", text: "任务列表", pid: "dataBar" },
+	
+	{id: "a_functionMng", text: "执行结果", pid: "dataBar" },
+	
+	{id: "systemMng", text: "系统管理"},
+	
+	{id: "system/a_userMng", text: "用户管理", pid: "systemMng" }
+	
+]

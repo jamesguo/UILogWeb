@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ 
+<!DOCTYPE sqlMap     
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"     
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+ 
+<sqlMap namespace="User">
+ 
+  <!-- Use type aliases to avoid typing the full classname every time. -->
+  <typeAlias alias="User" type="ctrip.system.model.User"/>
+  <typeAlias alias="UserSearchFilter" type="com.common.viewmodel.UserSearchFilter"/>
+ 
+  <!-- Select with no parameters using the result map for Account class. -->
+  <select id="selectAllUsers" resultClass="User">
+    select * from user_tb
+  </select>
+ 
+  <select id="selectUserById" resultClass="User" parameterClass="int">
+    select * from user_tb where id=#id#
+  </select>
+  
+   <select id="selectUserByName"  resultClass="User" parameterClass="String">
+    select * from user_tb where user_name = #name#
+  </select>
+ 
+   <select id="searchUser"  resultClass="User"  parameterClass="UserSearchFilter">
+    select * from user_tb 
+    	 <dynamic prepend="WHERE">
+    	 	 <isNotEmpty  prepend="AND" property="user_name">
+    	 	 user_name like  '%$user_name$%'
+    		</isNotEmpty >
+    		<isGreaterThan  prepend="AND" property="group_id" compareValue="0">
+    	 	 group_id = #group_id#
+    		</isGreaterThan >
+    		 <isGreaterThan   prepend="AND" property="role_id" compareValue="0">
+    	 	 role_id  = #role_id#
+    		</isGreaterThan >
+    		</dynamic>
+    	<isGreaterThan property="pageSize" compareValue="0">
+		 limit #pageIndex#,#pageSize#
+		</isGreaterThan>  
+    </select>
+    
+   <select id="searchUserCount"  resultClass="int"  parameterClass="UserSearchFilter">
+    select count(*)  from user_tb 
+    	 <dynamic prepend="WHERE">
+    	 	 <isNotEmpty  prepend="AND" property="user_name">
+    	 	 user_name like  '%$user_name$%'
+    		</isNotEmpty >
+    		<isGreaterThan  prepend="AND" property="group_id" compareValue="0">
+    	 	 group_id = #group_id#
+    		</isGreaterThan >
+    		 <isGreaterThan   prepend="AND" property="role_id" compareValue="0">
+    	 	 role_id  = #role_id#
+    		</isGreaterThan >
+    		</dynamic>
+    </select>
+    
+ 
+  <insert id="insertUser" parameterClass="User">
+    insert into user_tb values (
+       null,#user_name#,#user_pwd#,#group_id#,#role_id#
+    )
+  </insert>
+ 
+  <update id="updateUser" parameterClass="User">
+    update user_tb set user_name = #user_name#,user_pwd=#user_pwd#,group_id=#group_id#,role_id=#role_id#
+    where id=#id#
+  </update>
+ 
+  <delete id="deleteUser" parameterClass="int">
+    delete from user_tb where id=#id#
+  </delete>
+  
+   <select id="getMantisUserId" resultClass="int" parameterClass="String">
+    select id from mantis_user_table where username=#username#
+   </select>
+   
+  <select id="getMantisUserIdByRealName" resultClass="int" parameterClass="String">
+    select id from mantis_user_table where realname=#username# or username = #username#
+   </select>
+  
+</sqlMap>

@@ -1,0 +1,10 @@
+eclipse.preferences.version=1
+encoding//WebRoot/diff.jsp=UTF-8
+encoding//WebRoot/index.jsp=UTF-8
+encoding//WebRoot/subs/baffleEditWin.jsp=UTF-8
+encoding//WebRoot/subs/configEditWin.jsp=UTF-8
+encoding//WebRoot/subs/searchBaffleWin.jsp=UTF-8
+encoding//WebRoot/subs/searchServiceWin.jsp=UTF-8
+encoding//src/ctrip/dbutils=GBK
+encoding//src/ctrip/dbutils/SqlException.java=GBK
+encoding/<project>=UTF-8

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="TestPlan">
+
+    <!-- Use type aliases to avoid typing the full classname every time. -->
+    <typeAlias alias="TestPlanSummary" type="ctrip.system.model.TestPlanSummary"/>
+    <typeAlias alias="TestPlanDetail" type="ctrip.system.model.TestPlanDetail"/>
+    <typeAlias alias="TestCaseAssertion" type="ctrip.system.model.TestCaseAssertion"/>
+    <typeAlias alias="TestCaseDetail" type="ctrip.system.model.TestCaseDetail"/>
+    <typeAlias alias="TestSuite" type="ctrip.system.model.TestSuite"/>
+    <typeAlias alias="TestPlanSummarySearchFilter" type="com.common.viewmodel.TestPlanSummarySearchFilter"/>
+    <typeAlias alias="TestDetailSearchFilter" type="com.common.viewmodel.TestDetailSearchFilter"/>
+    <typeAlias alias="TestAssertionSearchFilter" type="com.common.viewmodel.TestAssertionSearchFilter"/>
+    <typeAlias alias="BaseSearchFilter" type="com.common.viewmodel.BaseSearchFilter"/>
+
+    <select id="getAllTestPlanSummaries" resultClass="TestPlanSummary" parameterClass="TestPlanSummarySearchFilter">
+        select
+        c.case_name as testPlanName ,
+        a.case_number,ifnull(b.passCaseNumber,0) as passCaseNumber,
+        count(a.case_number) as totalCaseNumber,
+        (ifnull(b.passCaseNumber,0)/count(a.case_number))*100 as passRate,
+        max(case_end_time) as endDate,
+        min(case_start_time) as startDate
+        from caseresult as a
+        left join
+        (select sum(case_excute_state)/2 as passCaseNumber,case_number as ca   from caseresult where batch_number=7 and case_excute_state =2 group by case_number)
+        as b
+        on a.case_number=b.ca
+        left join caselisttable
+        as c
+        on a.case_number=c.case_number
+        where a.batch_number=7 group by a.case_number
+
+
+        <dynamic prepend="ORDER BY">
+            <isNotEmpty property="sortField">
+                $sortField$ $sortOrder$
+            </isNotEmpty>
+        </dynamic>
+        <isGreaterThan property="pageSize" compareValue="0">
+            limit #pageIndex#,#pageSize#
+        </isGreaterThan>
+    </select>
+
+
+    <select id="getAllTestPlanSummariesCount" resultClass="int" parameterClass="TestPlanSummarySearchFilter">
+select count(distinct case_number) from caseresult where batch_number=#testSuiteNO#
+</select>
+
+
+    <select id="getAllTestDetailCount" resultClass="int" parameterClass="TestDetailSearchFilter">
+ select count(*)
+from caseresult
+        where batch_number=#testSuiteNO# and case_number=#testPlanName#
+
+</select>
+
+    <select id="getAllTestDetail" resultClass="TestPlanDetail" parameterClass="TestDetailSearchFilter">
+        select
+        id as caseNO,
+        device_name as serviceName,
+        case_result_path as passValidation,
+        (case case_excute_state  when 1 then 'Processing' when 2 then 'Passed'  when 3 then 'Failed'	ELSE '其他' END)as rCode  ,
+        (case_end_time-case_start_time) as processTime
+        from caseresult
+        where batch_number=#testSuiteNO# and case_number=#case_number#
+
+        <dynamic prepend="ORDER BY">
+            <isNotEmpty property="sortField">
+                $sortField$ $sortOrder$
+            </isNotEmpty>
+        </dynamic>
+        <isGreaterThan property="pageSize" compareValue="0">
+            limit #pageIndex#,#pageSize#
+        </isGreaterThan>
+    </select>
+
+    <select id="getAllTestSuite" resultClass="TestSuite" parameterClass="BaseSearchFilter">
+        select count(distinct a.batch_number)as des,a.batch_number as testSuiteNo,a.case_start_time as testDate,b.batch_owner as user
+        from caseresult as a
+        left join batchtable as b
+        on a.batch_number=b.batch_number
+        <dynamic prepend="ORDER BY">
+            <isNotEmpty property="sortField">
+                $sortField$ $sortOrder$
+            </isNotEmpty>
+        </dynamic>
+        <isGreaterThan property="pageSize" compareValue="0">
+            limit #pageIndex#,#pageSize#
+        </isGreaterThan>
+
+    </select>
+
+    <select id="getAllTestSuiteCount" resultClass="int" parameterClass="BaseSearchFilter">
+        select count(distinct batch_number)  from caseresult
+        where batch_number is not null
+
+
+    </select>
+
+
+</sqlMap>
